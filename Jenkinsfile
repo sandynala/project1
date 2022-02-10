@@ -1,18 +1,18 @@
 pipeline {
     agent any
     environment {
-        dockerImage = "20152282/javaapp_$JOB_NAME:$BUILD_NUMBER"
+        dockerImage = "ashagari/javaapp_$JOB_NAME:$BUILD_NUMBER"
         dockerContainerName = 'javaapp_$JOB_NAME_$BUILD_NUMBER'
     }
     tools {
         maven 'Maven'
-        jdk 'JDK 1.8.*'
+        jdk 'JDK 1.11.*'
     }
     stages {
         stage('git checkout') {
             steps {
                 git branch: 'master',
-                url: 'https://github.com/nalajala9/github-action-maven-example-start.git'
+                url: 'https://github.com/sandynala/project1.git'
                 sh 'ls -al'
             }
         }
@@ -23,14 +23,17 @@ pipeline {
             }
         }
 
-        stage('Sonar Testing') {
+        stage('SonarQube analysis') {
+            environment {
+                scannerHome = tool 'SonarQube Scanner' // the name you have given the Sonar Scanner (Global Tool Configuration
+            }
             steps {
-                sh 'mvn sonar:sonar \
-                -Dsonar.projectKey=test \
-                -Dsonar.host.url=http://3.144.255.88:9000/ \
-                -Dsonar.login=fb5e9f638cede98b9355b07c4ab09a766b59ff03'
+                withSonarQubeEnv(installationName: 'SonarServer') {
+                    sh 'mvn sonar:sonar'
+                }
             }
         }
+
         stage('Build Docker Image ') {
             steps {
                 sh "docker build  -t ${dockerImage} ."
@@ -44,8 +47,8 @@ pipeline {
         }
         stage('Docker Push') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerPWD')]) {
-                    sh "docker login -u 20152282 -p ${dockerPWD}"
+                withCredentials([string(credentialsId: 'Dockerhub-key', variable: 'dockerPWD')]) {
+                    sh "docker login -u ashagari -p ${dockerPWD}"
                 }
                 sh "docker push ${dockerImage}"
             }
