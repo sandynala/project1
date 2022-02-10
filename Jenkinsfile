@@ -42,7 +42,7 @@ pipeline {
 
         stage('Docker Run') {
             steps {
-                sh "docker run -dit --name ${dockerContainerName} ${dockerImage}"
+                sh "docker run -dit --name ${dockerContainerName} -p 8000:8080 ${dockerImage}"
             }
         }
         stage('Docker Push') {
