@@ -5,8 +5,8 @@ pipeline {
         dockerContainerName = 'javaapp_$JOB_NAME_$BUILD_NUMBER'
     }
     tools {
-        maven 'Maven'
-        jdk 'JDK 1.11.*'
+        maven 'maven'
+        jdk 'jdk'
     }
     stages {
         stage('git checkout') {
